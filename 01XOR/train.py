@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import torch.optim as optim
 
 
 class Net(nn.Module):
@@ -8,55 +9,67 @@ class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
         self.fc1 = nn.Linear(2, 4)
-        self.fc2 = nn.Linear(4, 1)
+        self.fc2 = nn.Linear(4, 10)
+        self.fc3 = nn.Linear(10, 16)
+        self.fc4 = nn.Linear(16, 10)
+        self.fc5 = nn.Linear(10, 4)
+        self.fc6 = nn.Linear(4, 2)
 
     def forward(self, x):
-        x = F.relu(self.fc1(x))
-        x = self.fc2(x)
-        return x
+        x = F.tanh(self.fc1(x))
+        x = F.tanh(self.fc2(x))
+        x = F.tanh(self.fc3(x))
+        x = F.tanh(self.fc4(x))
+        x = F.tanh(self.fc5(x))
+        return self.fc6(x)
 
 net = Net()
 print(net)
 
-learning_rate = 0.1
+batch_size = 200
 
 def xor(a, b):
-    if a*b > 0:
-        return 1
+    # return torch.Tensor([a+b])
+    if (a*b) > 0:
+        return torch.Tensor([1])
     else:
-        return -1
+        return torch.Tensor([0])
 
 def data_provider():
-    data_in = torch.randn(100,2)
-    label = torch.Tensor(100,1)
-    for i in range(100):
-        label[i][0] = xor(data_in[i][0], data_in[i][1])
+    data_in = torch.rand(batch_size,2) * 2 - 1
+    label = torch.Tensor(batch_size,1)
+    for i in range(batch_size):
+        label[i] = xor(data_in[i][0], data_in[i][1])
     return data_in, label
 
-while True:
+optimizer = optim.Adam(net.parameters(), lr=0.01)
+
+for i in range(300):
+    optimizer.zero_grad()
     data_in, gt = data_provider()
     data_out = net(data_in)
-    # print(data_in)
-    gt[0] = data_in[0][0] * data_in[0][1]
-    if gt[0] > 0:
-        gt[0] = 1
-    else:
-        gt[0] = 0
-    gt = gt.view(1, -1)
-    # print(gt)
     criterion = nn.L1Loss()
     loss = criterion(data_out, gt)
-    net.zero_grad()
     loss.backward()
-    for f in net.parameters():
-        f.data.sub_(f.grad.data * learning_rate)
-    learning_rate = learning_rate * 0.99
-    if learning_rate < 0.00000001:
-        break
+    # print(data_in[0])
+    # print(gt[0])
+    print(loss)
+    optimizer.step()
 
-for f in range(10):
-    data_in = torch.randn(2)
+def check(a, b):
+    if (a[0]*a[1]) > 0 and b[0] > 0.5:
+        return True
+    if (a[0]*a[1]) < 0 and b[0] < 0.5:
+        return True
+    return False
+
+test_size = 1000
+count = 0
+for f in range(test_size):
+    data_in = torch.rand(2) * 2 - 1
     data_in = data_in.view(1, -1)
     data_out = net(data_in)
-    print(data_in)
-    print(data_out)
+    # print(data_in[0], data_out[0])
+    if check(data_in[0], data_out[0]):
+        count += 1
+print(count/test_size)
