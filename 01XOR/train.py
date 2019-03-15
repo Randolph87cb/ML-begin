@@ -23,7 +23,7 @@ learning_rate = 0.1
 def xor(a, b):
     if a*b > 0:
         return 1
-    else
+    else:
         return -1
 
 def data_provider():
