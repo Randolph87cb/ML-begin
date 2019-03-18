@@ -5,7 +5,7 @@ import os
 from net import Net
 from data import trainloader, testloader
 
-model_path = 'model.pkl'
+model_path = 'model_gpu.pkl'
 net = Net()
 if os.path.isfile(model_path):
     net.load_state_dict(torch.load(model_path))
@@ -42,4 +42,5 @@ for epoch in range(2):  # loop over the dataset multiple times
 print('Finished Training')
 
 torch.save(net.module.state_dict(), model_path)
+print('Save model_gpu')
 
