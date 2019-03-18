@@ -5,6 +5,8 @@ from net import Net
 from data import trainloader, testloader
 
 net = Net()
+net = nn.DataParallel(net)
+net_gpu = net.cuda()
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 
@@ -15,6 +17,7 @@ for epoch in range(2):  # loop over the dataset multiple times
     for i, data in enumerate(trainloader, 0):
         # get the inputs
         inputs, labels = data
+        inputs, labels = inputs.cuda(), labels.cuda()
 
         # zero the parameter gradients
         optimizer.zero_grad()
@@ -35,3 +38,4 @@ for epoch in range(2):  # loop over the dataset multiple times
 print('Finished Training')
 
 torch.save(net, 'model.pkl')
+
