@@ -1,7 +1,16 @@
+import os
 import torch
 from data import testloader
+from net import Net
 
-net = torch.load('model.pkl')
+save_path = 'model.pkl'
+net = Net()
+if os.path.isfile(save_path):
+    device = torch.device('cpu')
+    net.load_state_dict(torch.load(save_path, map_location=device))
+else:
+    print('model dose not exist')
+    exit()
 correct = 0
 total = 0
 with torch.no_grad():
