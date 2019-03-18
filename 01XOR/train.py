@@ -28,6 +28,7 @@ print(net)
 
 batch_size = 200
 
+
 def xor(a, b):
     # return torch.Tensor([a+b])
     if (a*b) > 0:
@@ -35,9 +36,10 @@ def xor(a, b):
     else:
         return torch.Tensor([0])
 
+
 def data_provider():
-    data_in = torch.rand(batch_size,2) * 2 - 1
-    label = torch.Tensor(batch_size,1)
+    data_in = torch.rand(batch_size, 2) * 2 - 1
+    label = torch.Tensor(batch_size, 1)
     for i in range(batch_size):
         label[i] = xor(data_in[i][0], data_in[i][1])
     return data_in, label
@@ -55,6 +57,7 @@ for i in range(300):
     # print(gt[0])
     print(loss)
     optimizer.step()
+
 
 def check(a, b):
     if (a[0]*a[1]) > 0 and b[0] > 0.5:

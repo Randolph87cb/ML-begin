@@ -1,0 +1,6 @@
+# vscode config
+.vscode/
+
+# save data
+__pycache__/
+data/
