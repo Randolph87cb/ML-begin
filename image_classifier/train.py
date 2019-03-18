@@ -5,10 +5,11 @@ import os
 from net import Net
 from data import trainloader, testloader
 
-save_path = 'model_cpu.pkl'
+save_path = 'model.pkl'
 net = Net()
 if os.path.isfile(save_path):
-    net.load_state_dict(torch.load(save_path))
+    device = torch.device('cpu')
+    net.load_state_dict(torch.load(save_path, map_location=device))
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 
@@ -38,5 +39,5 @@ for epoch in range(2):  # loop over the dataset multiple times
 
 print('Finished Training')
 
-torch.save(net.state_dict(), 'model.pkl')
+torch.save(net.state_dict(), save_path)
 print('Save model_cpu')

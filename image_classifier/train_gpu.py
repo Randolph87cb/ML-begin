@@ -5,14 +5,15 @@ import os
 from net import Net
 from data import trainloader, testloader
 
-model_path = 'model_gpu.pkl'
+save_path = 'model.pkl'
 net = Net()
-if os.path.isfile(model_path):
-    net.load_state_dict(torch.load(model_path))
+if os.path.isfile(save_path):
+    device = torch.device('cpu')
+    net.load_state_dict(torch.load(save_path, map_location=device))
 net = nn.DataParallel(net)
 net_gpu = net.cuda()
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+optimizer = optim.SGD(net_gpu.parameters(), lr=0.001, momentum=0.9)
 
 
 for epoch in range(2):  # loop over the dataset multiple times
@@ -27,7 +28,7 @@ for epoch in range(2):  # loop over the dataset multiple times
         optimizer.zero_grad()
 
         # forward + backward + optimize
-        outputs = net(inputs)
+        outputs = net_gpu(inputs)
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
@@ -41,6 +42,6 @@ for epoch in range(2):  # loop over the dataset multiple times
 
 print('Finished Training')
 
-torch.save(net.module.state_dict(), model_path)
+torch.save(net_gpu.module.state_dict(), save_path)
 print('Save model_gpu')
 
