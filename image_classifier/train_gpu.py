@@ -1,10 +1,14 @@
 import torch.optim as optim
 import torch.nn as nn
 import torch
+import os
 from net import Net
 from data import trainloader, testloader
 
-net = Net()
+if os.path.isfile('model.pkl'):
+    net = torch.load('model.pkl')
+else:
+    net = Net()
 net = nn.DataParallel(net)
 net_gpu = net.cuda()
 criterion = nn.CrossEntropyLoss()
@@ -37,5 +41,6 @@ for epoch in range(2):  # loop over the dataset multiple times
 
 print('Finished Training')
 
+net = net.cpu()
 torch.save(net, 'model.pkl')
 
